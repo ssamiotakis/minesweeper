@@ -26,31 +26,31 @@ class Board
             bombs << pos unless bombs.include?(pos)
         end
         # bombs.each {|pos| self.@grid[pos] = "B"}
+        p "bombs"
+        p bombs
         bombs
     end
 
 
     def create_grid
         grid_length = 9
-        grid = Array.new(grid_length) {Array.new(grid_length, Tile.new)}
-        bombs = bombs_locations
-        # debugger
-        bombs.each {|pos| grid[pos[0]][pos[1]].value = "B"}
+        grid = Array.new(grid_length){Array.new(grid_length) {Tile.new}}
+        bombs_locations.each {|pos| grid[pos[0]][pos[1]].value = "B"}
         (0...grid_length).each do |i|
             (0...grid_length).each do |j|
-                if grid[i][j] != "B"
+                if grid[i][j].value != "B"
                     if i > 0
-                        i_lower = i+1 
+                        i_lower = i - 1 
                     else
                         i_lower = 0
                     end
                     if i < grid_length - 1
-                        i_upper = i+1 
+                        i_upper = i + 1 
                     else
                         i_upper = grid_length - 1
                     end
                     if j > 0
-                        j_lower = j + 1 
+                        j_lower = j - 1 
                     else
                         j_lower = 0
                     end
@@ -62,14 +62,18 @@ class Board
                     count = 0
                     (i_lower..i_upper).each do |k|
                         (j_lower..j_upper).each do |l|
-                            count += 1 if grid[k][l].value = "B" 
+                            count += 1 if grid[k][l].value == "B" 
                         end
                     end
-                    grid[i][j].value = count.to_s if count != 0
+                     if count != 0
+                        grid[i][j].value = count.to_s
+                    else
+                        grid[i][j].value = "_"
+                    end
                 end
             end
         end
-        p grid
+        grid
     end 
 
     def [](pos)
@@ -93,7 +97,7 @@ class Board
     end
 
     def render
-        puts "      Sudoku"
+        puts "      Minesweeper"
         puts first_line
         render_string = (0...@grid.length).map do |i|
             i.to_s + " " + @grid[i].each_with_index.map do |tile, j|
@@ -108,10 +112,10 @@ class Board
     end
 
     def solution_render
-        puts " Sudoku solution"
+        puts " Minewsweeper solution"
         puts first_line
-        render_string = (0...solution.length).map do |i|
-            i.to_s + " " + solution[i].map do |tile|
+        render_string = (0...@grid.length).map do |i|
+            i.to_s + " " + @grid[i].map do |tile|
                 tile.value
             end.join(" ")
         end.join("\n")
@@ -119,30 +123,17 @@ class Board
     end
 
     def solved?
-        (0...@grid.length).each do |k|
-                return false unless row_solved?(k) && coloumn_solved?(k) 
-        end
-        (0..6).step(3) do |i|
-            (0..6).step(3) do |j|
-                return false unless square_solved?(i,j)
+        (0...@grid.length).each do |i|
+            (0...@grid.length).each do |j|
+                return false unless @grid[i][j].face_up == true 
             end
         end 
         true
     end
-    # def initialize
-    #     @grid = Array.new(9) {Array.new(9, Tile.new)}
-
-    # end
-
-
-    # def reveal
-    # end 
-
-    # def render
-    # end
 
 end
 
 
 board = Board.new
-board.create_grid
+board.solution_render
+p board.solved?

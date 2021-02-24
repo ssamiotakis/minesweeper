@@ -12,9 +12,9 @@ class Game
         until @board.solved? do
             system("clear")
             @board.render
-            puts "Please enter a position and a chosen number separated with a space character (e.g. '1,2 8')"
+            puts "Please enter a position (e.g. '1,2')"
             print ">"
-            # @board.solution_render
+            @board.solution_render
             unless valid?(prompt) 
                 system("clear")
                 puts "invalid input please try again!"
@@ -46,17 +46,3 @@ end
 
 game = Game.new
 game.play
-    def initialize
-    end
-
-    def turn
-    end
-
-    def run
-        until solved?
-            turn
-        end
-    end
-
-
-end

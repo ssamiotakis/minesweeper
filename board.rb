@@ -30,7 +30,24 @@ class Board
         p bombs
         bombs
     end
+    
+    def lower(i)
+        if i > 0
+            lower = i - 1 
+        else
+            lower = 0
+        end
+        lower
+    end
 
+    def upper(i)
+        if i < 8
+            upper = i + 1 
+        else
+            upper = 8
+        end
+        upper
+    end
 
     def create_grid
         grid_length = 9
@@ -39,29 +56,9 @@ class Board
         (0...grid_length).each do |i|
             (0...grid_length).each do |j|
                 if grid[i][j].value != "B"
-                    if i > 0
-                        i_lower = i - 1 
-                    else
-                        i_lower = 0
-                    end
-                    if i < grid_length - 1
-                        i_upper = i + 1 
-                    else
-                        i_upper = grid_length - 1
-                    end
-                    if j > 0
-                        j_lower = j - 1 
-                    else
-                        j_lower = 0
-                    end
-                    if j < grid_length - 1
-                        j_upper = j + 1  
-                    else
-                        j_upper = grid_length - 1
-                    end
                     count = 0
-                    (i_lower..i_upper).each do |k|
-                        (j_lower..j_upper).each do |l|
+                    (lower(i)..upper(i)).each do |k|
+                        (lower(j)..upper(j)).each do |l|
                             count += 1 if grid[k][l].value == "B" 
                         end
                     end
@@ -92,8 +89,34 @@ class Board
         Board.from_file("sudoku1_solved.txt")
     end
 
-    def update_value(pos, value)
-        @grid[pos[0]][pos[1]].value = value if @grid[pos[0]][pos[1]].given == false
+    def game_over?(pos)
+        if grid[pos[0]][pos[1]].value == "B" 
+            puts "Game over! Sorry, you stepped on a Bomb!"
+            return true
+        end
+        false
+    end
+
+
+
+    def reveal(pos)
+        p "revel pos #{pos}"
+        debugger
+        if @grid[pos[0]][pos[1]].value.to_i.between?(1, 8)
+            @grid[pos[0]][pos[1]].face_up = true
+            return
+        end
+        if @grid[pos[0]][pos[1]].value == "_"
+            @grid[pos[0]][pos[1]].face_up = true
+            (lower(pos[0])..upper(pos[0])).each do |k|
+                (lower(pos[1])..upper(pos[1])).each do |l|
+                    reveal([k, l]) unless k == pos[0] && l == pos[1] || @grid[k][l].face_up == true
+                    render
+                    puts "solution_render"
+                    solution_render
+                end
+            end
+        end
     end
 
     def render
@@ -101,10 +124,12 @@ class Board
         puts first_line
         render_string = (0...@grid.length).map do |i|
             i.to_s + " " + @grid[i].each_with_index.map do |tile, j|
-                if tile.given == true
+                if tile.face_up == true
                     tile.value
+                elsif tile.flagged == true
+                    "F"
                 else
-                    tile.value.to_s.colorize(:red)
+                    "*"
                 end
             end.join(" ")
         end.join("\n")
@@ -135,5 +160,11 @@ end
 
 
 board = Board.new
+board.render
 board.solution_render
-p board.solved?
+print "Pos?  >"
+string = gets.chomp
+pos = string.split(",").map { |char| Integer(char) }
+board.reveal(pos)
+
+

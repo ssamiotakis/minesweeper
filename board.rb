@@ -110,8 +110,6 @@ class Board
                 (lower(pos[1])..upper(pos[1])).each do |l|
                     reveal([k, l]) unless k == pos[0] && l == pos[1] || @grid[k][l].face_up == true
                     render
-                    # puts "solution_render"
-                    # solution_render
                 end
             end
         end
@@ -167,13 +165,5 @@ class Board
     end
 end
 
-
-# board = Board.new
-# board.render
-# board.solution_render
-# print "Pos?  >"
-# string = gets.chomp
-# pos = string.split(",").map { |char| Integer(char) }
-# board.reveal(pos)
 
 

@@ -1,6 +1,7 @@
 require_relative "tile"
 require "byebug"
 
+
 class Board
 
     attr_accessor :grid
@@ -82,7 +83,7 @@ class Board
     end
 
     def first_line
-        "  " + (0..8).map {|i| i.to_s}.join(" ")
+        "  " + (0..8).map {|i| i.to_s}.join(" ").colorize(:blue)
     end
 
     def solution
@@ -91,7 +92,7 @@ class Board
 
     def game_over?(pos)
         if grid[pos[0]][pos[1]].value == "B" && grid[pos[0]][pos[1]].flagged == false
-            puts "Game over! Sorry, you stepped on a Bomb!"
+            puts "Game over! Sorry, you stepped on a Bomb!".colorize(:red)
             return true
         end
         false
@@ -119,11 +120,11 @@ class Board
         puts "      Minesweeper"
         puts first_line
         render_string = (0...@grid.length).map do |i|
-            i.to_s + " " + @grid[i].each_with_index.map do |tile, j|
+            i.to_s.colorize(:blue) + " " + @grid[i].each_with_index.map do |tile, j|
                 if tile.face_up == true
                     tile.value
                 elsif tile.flagged == true
-                    "F"
+                    "F".colorize(:red)
                 else
                     "*"
                 end
@@ -136,8 +137,12 @@ class Board
         puts " Minewsweeper solution"
         puts first_line
         render_string = (0...@grid.length).map do |i|
-            i.to_s + " " + @grid[i].map do |tile|
-                tile.value
+            i.to_s.colorize(:blue) + " " + @grid[i].map do |tile|
+                if ["B", "F"].include?(tile.value)
+                    tile.value.colorize(:red)
+                else
+                    tile.value
+                end
             end.join(" ")
         end.join("\n")
         puts render_string

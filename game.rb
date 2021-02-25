@@ -1,7 +1,6 @@
 require_relative "board"
 require "yaml"
 require 'colorize'
-require "remedy"
 
 class Game
 
@@ -11,13 +10,13 @@ class Game
 
     def play
         timer1 = Time.now.to_i
-        previous_sec = t1
+        previous_sec = timer1
         until @board.solved? do
             system("clear")
             timer2 = Time.now.to_i
             if timer2 > previous_sec
                 previous_sec += 1 
-                puts t2 - t1
+                puts timer2 - timer1
             end
             @board.solution_render
             @board.render

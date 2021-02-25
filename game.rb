@@ -1,4 +1,7 @@
 require_relative "board"
+require "yaml"
+require 'colorize'
+require "remedy"
 
 class Game
 
@@ -7,8 +10,15 @@ class Game
     end
 
     def play
+        timer1 = Time.now.to_i
+        previous_sec = t1
         until @board.solved? do
-            # system("clear")
+            system("clear")
+            timer2 = Time.now.to_i
+            if timer2 > previous_sec
+                previous_sec += 1 
+                puts t2 - t1
+            end
             @board.solution_render
             @board.render
             print_prompt_info
@@ -18,7 +28,7 @@ class Game
             end
             return unless choose_function_if_not_a_bomb?
         end
-        # system("clear")
+        system("clear")
         @board.solution_render
         puts "Congratulations you won!"
     end

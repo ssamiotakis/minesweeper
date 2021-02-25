@@ -26,8 +26,8 @@ class Board
             bombs << pos unless bombs.include?(pos)
         end
         # bombs.each {|pos| self.@grid[pos] = "B"}
-        p "bombs"
-        p bombs
+        # p "bombs"
+        # p bombs
         bombs
     end
     
@@ -90,18 +90,16 @@ class Board
     end
 
     def game_over?(pos)
-        if grid[pos[0]][pos[1]].value == "B" 
+        if grid[pos[0]][pos[1]].value == "B" && grid[pos[0]][pos[1]].flagged == false
             puts "Game over! Sorry, you stepped on a Bomb!"
             return true
         end
         false
     end
 
-
-
     def reveal(pos)
         p "revel pos #{pos}"
-        debugger
+        # debugger
         if @grid[pos[0]][pos[1]].value.to_i.between?(1, 8)
             @grid[pos[0]][pos[1]].face_up = true
             return
@@ -112,8 +110,8 @@ class Board
                 (lower(pos[1])..upper(pos[1])).each do |l|
                     reveal([k, l]) unless k == pos[0] && l == pos[1] || @grid[k][l].face_up == true
                     render
-                    puts "solution_render"
-                    solution_render
+                    # puts "solution_render"
+                    # solution_render
                 end
             end
         end
@@ -150,21 +148,32 @@ class Board
     def solved?
         (0...@grid.length).each do |i|
             (0...@grid.length).each do |j|
-                return false unless @grid[i][j].face_up == true 
+                return false unless @grid[i][j].face_up == true || @grid[i][j].value == "B"
             end
         end 
         true
     end
 
+    def flag_bomb(pos)
+        @grid[pos[0]][pos[1]].flagged = true
+    end
+
+    def unflag_bomb(pos)
+        @grid[pos[0]][pos[1]].flagged = false
+    end
+
+    def flagged?(pos)
+        @grid[pos[0]][pos[1]].flagged
+    end
 end
 
 
-board = Board.new
-board.render
-board.solution_render
-print "Pos?  >"
-string = gets.chomp
-pos = string.split(",").map { |char| Integer(char) }
-board.reveal(pos)
+# board = Board.new
+# board.render
+# board.solution_render
+# print "Pos?  >"
+# string = gets.chomp
+# pos = string.split(",").map { |char| Integer(char) }
+# board.reveal(pos)
 
 

@@ -4,41 +4,50 @@ class Game
 
     def initialize
         @board = Board.new
-        @pos = []
-        @value = 0
     end
 
     def play
         until @board.solved? do
-            system("clear")
-            @board.render
-            puts "Please enter a position (e.g. '1,2')"
-            print ">"
+            # system("clear")
             @board.solution_render
-            unless valid?(prompt) 
-                system("clear")
+            @board.render
+            puts "Please enter a position, followed by a space and then r for reveal and f for flagging and u for unflagging" 
+            puts "(e.g. '1,2 r' or '1,2 f' or '1,2 u')"
+            print ">"
+            unless valid?(prompt)
+                # system("clear")
                 puts "invalid input please try again!"
-                sleep(2)
-                next
             end
-            @board.update_value(@pos, @value)
+            case @operation 
+            when "r" 
+                if @board.flagged?(@pos) 
+                    puts "Cannot reveal position. Position flagged as Bomb. You have to unflag first."
+                else
+                    return if @board.game_over?(@pos)
+                    @board.reveal(@pos) 
+                end
+            when "f"
+                    @board.flag_bomb(@pos)
+            when "u"
+                    @board.unflag_bomb(@pos)
+            end
         end
-        system("clear")
-        @board.render
+        # system("clear")
+        @board.solution_render
         puts "Congratulations you won!"
     end
 
     def prompt
-        pos_value = gets.chomp.split("")
-        pos_value
+        user_input = gets.chomp.split("")
+        user_input
     end
 
-    def valid?(pos_value)
-        @pos = [pos_value[0].to_i, pos_value[2].to_i]
-        @value = pos_value[4].to_i
-        return false if pos_value[1] != "," 
+    def valid?(user_input)
+        @pos = [user_input[0].to_i, user_input[2].to_i]
+        @operation = user_input[4]
+        return false if user_input[1] != "," 
         return false if @pos.any? {|n| !(0..8).include?(n)}
-        (1..9).include?(@value)
+        ["r", "f", "u"].include?(@operation)
     end
 
 end

@@ -1,4 +1,5 @@
 require_relative "board"
+require "yaml"
 
 class Game
 

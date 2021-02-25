@@ -1,5 +1,6 @@
 require_relative "board"
 require "yaml"
+require 'colorize'
 
 class Game
 

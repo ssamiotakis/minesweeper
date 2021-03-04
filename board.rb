@@ -26,9 +26,6 @@ class Board
             pos = [(0..8).to_a.sample, (0..8).to_a.sample]
             bombs << pos unless bombs.include?(pos)
         end
-        # bombs.each {|pos| self.@grid[pos] = "B"}
-        # p "bombs"
-        # p bombs
         bombs
     end
     
@@ -86,10 +83,6 @@ class Board
         "  " + (0..8).map {|i| i.to_s}.join(" ").colorize(:blue)
     end
 
-    def solution
-        Board.from_file("sudoku1_solved.txt")
-    end
-
     def game_over?(pos)
         if grid[pos[0]][pos[1]].value == "B" && grid[pos[0]][pos[1]].flagged == false
             puts "Game over! Sorry, you stepped on a Bomb!".colorize(:red)
@@ -99,7 +92,6 @@ class Board
     end
 
     def reveal(pos)
-        p "revel pos #{pos}"
         # debugger
         if @grid[pos[0]][pos[1]].value.to_i.between?(1, 8)
             @grid[pos[0]][pos[1]].face_up = true
@@ -110,7 +102,7 @@ class Board
             (lower(pos[0])..upper(pos[0])).each do |k|
                 (lower(pos[1])..upper(pos[1])).each do |l|
                     reveal([k, l]) unless k == pos[0] && l == pos[1] || @grid[k][l].face_up == true
-                    render
+                    # render
                 end
             end
         end

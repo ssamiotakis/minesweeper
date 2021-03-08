@@ -1,18 +1,15 @@
 require_relative "tile"
 require "byebug"
-
+require 'colorize'
 
 class Board
-
-    attr_accessor :grid
     
     def initialize
         @grid = create_grid
-
     end
 
     def [](pos)
-        @grid[pos[0]] [pos[1]].value
+        @grid[pos[0]] [pos[1]]
     end
 
     def []=(pos, value)
@@ -68,23 +65,16 @@ class Board
                 end
             end
         end
+        grid[0][0].current = true
         grid
     end 
-
-    def [](pos)
-        @grid[pos[0]] [pos[1]].value
-    end
-
-    def []=(pos, value)
-        @grid[pos[0]][pos[1]].value = value
-    end
 
     def first_line
         "  " + (0..8).map {|i| i.to_s}.join(" ").colorize(:blue)
     end
 
     def game_over?(pos)
-        if grid[pos[0]][pos[1]].value == "B" && grid[pos[0]][pos[1]].flagged == false
+        if self[pos].value == "B" && self[pos].flagged == false
             puts "Game over! Sorry, you stepped on a Bomb!".colorize(:red)
             return true
         end
@@ -92,17 +82,15 @@ class Board
     end
 
     def reveal(pos)
-        # debugger
-        if @grid[pos[0]][pos[1]].value.to_i.between?(1, 8)
-            @grid[pos[0]][pos[1]].face_up = true
+        if self[pos].value.to_i.between?(1, 8)
+            self[pos].face_up = true
             return
         end
-        if @grid[pos[0]][pos[1]].value == "_"
-            @grid[pos[0]][pos[1]].face_up = true
+        if self[pos].value == "_"
+            self[pos].face_up = true
             (lower(pos[0])..upper(pos[0])).each do |k|
                 (lower(pos[1])..upper(pos[1])).each do |l|
-                    reveal([k, l]) unless k == pos[0] && l == pos[1] || @grid[k][l].face_up == true
-                    # render
+                    reveal([k, l]) unless k == pos[0] && l == pos[1] || self[[k,l]].face_up == true
                 end
             end
         end
@@ -114,15 +102,23 @@ class Board
         render_string = (0...@grid.length).map do |i|
             i.to_s.colorize(:blue) + " " + @grid[i].each_with_index.map do |tile, j|
                 if tile.face_up == true
-                    tile.value
+                    white_or_black_backgroung(tile, tile.value)
                 elsif tile.flagged == true
-                    "F".colorize(:red)
+                    white_or_black_backgroung(tile, "F").colorize(:red)
                 else
-                    "*"
+                    white_or_black_backgroung(tile, "*")
                 end
             end.join(" ")
         end.join("\n")
         puts render_string
+    end
+
+    def white_or_black_backgroung(tile, char)
+        if tile.current == true 
+            char.colorize( :black ).colorize( :background => :white)
+        else
+            char
+        end
     end
 
     def solution_render
@@ -150,17 +146,40 @@ class Board
     end
 
     def flag_bomb(pos)
-        @grid[pos[0]][pos[1]].flagged = true
+        self[pos].flagged = true
     end
 
     def unflag_bomb(pos)
-        @grid[pos[0]][pos[1]].flagged = false
+        self[pos].flagged = false
     end
 
     def flagged?(pos)
-        @grid[pos[0]][pos[1]].flagged
+        self[pos].flagged
+    end
+
+    def up(pos)
+        self[pos].current = false
+        @grid[pos[0] - 1][pos[1]].current = true
+    end
+
+    def down(pos)
+        self[pos].current = false
+        @grid[pos[0] + 1][pos[1]].current = true
+    end
+
+    def right(pos)
+        self[pos].current = false
+        @grid[pos[0]][pos[1] + 1].current = true
+    end
+
+    def left(pos)
+        self[pos].current = false
+        @grid[pos[0]][pos[1] - 1].current = true
     end
 end
 
 
+# board = Board.new
+# board.render
+# board.solution_render
 

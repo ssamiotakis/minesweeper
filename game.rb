@@ -4,9 +4,6 @@ require 'colorize'
 require 'leaderboard'
 require "redis"
 require "remedy"
-require "byebug"
-
-
 
 class Game
 
@@ -41,6 +38,12 @@ class Game
     def our_leaderboard
         highscore_lb = Leaderboard.new('highscores')
         redis = Redis.new
+        begin
+        redis.ping
+        rescue
+            puts "Redis server unavailable to save fastest players."
+            return
+        end
         highscore_lb.page_size = 3
         highscore_lb.reverse = true
         if highscore_lb.leaders(1).length < 3 || 
@@ -65,24 +68,8 @@ class Game
 
     def print_prompt_info
         puts "Please use the arrow keys to choose a position."
-        puts "Press 'Enter' to reveal it, f to flagg and u to unflagg the position." 
-    end
-
-    def choose_function_if_not_a_bomb?
-        case @operation 
-        when "r" 
-            if @board.flagged?(@pos) 
-                puts "Cannot reveal position. Position flagged as Bomb. You have to unflag first."
-            else
-                return false if @board.game_over?(@pos)
-                @board.reveal(@pos) 
-            end
-        when "f"
-                @board.flag_bomb(@pos)
-        when "u"
-                @board.unflag_bomb(@pos)
-        end
-        true
+        puts "Press 'Spacebar' to reveal it, 'f' to flagg and 'u' to unflagg the position."
+        puts "Press 's' to save the game and continue later or 'r' to retrieve the last saved game." 
     end
 
     def prompt
@@ -101,7 +88,7 @@ class Game
                 left
             elsif key == "\e[C"
                 right
-            elsif key == ?\r
+            elsif key == ?\s
                 if @board.flagged?(@pos) 
                     puts "Cannot reveal position. Position flagged as Bomb. You have to unflag first."
                 else
@@ -118,6 +105,13 @@ class Game
             elsif key ==  "u"
                 @board.unflag_bomb(@pos)
                 break
+            elsif key ==  "s"
+                save_game
+                @game_over = true
+                break
+            elsif key ==  "r"
+                retrieve_game
+                break
             else
                 puts "invalid input."
             end
@@ -128,6 +122,20 @@ class Game
             print_prompt_info
         end
         true
+    end
+
+    def save_game
+        game = {timer1: @timer1, timer: @timer, board: @board, pos: @pos}
+        File.open("game.yml", "w") { |file| file.write(game.to_yaml) }
+        puts "Your game has been saved"
+    end
+
+    def retrieve_game
+        game = YAML.load(File.read("game.yml"))
+        @timer1 = game[:timer1]
+        @timer = game[:timer]
+        @board = game[:board]
+        @pos = game[:pos]
     end
 
     def new_time
